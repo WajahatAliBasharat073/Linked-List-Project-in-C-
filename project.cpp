@@ -2,8 +2,12 @@
 #include <stdlib.h>
 #include <string>
 #include <windows.h>
+#include <fstream>
+#include <typeinfo>
+#include <conio.h>
 using namespace std;
 void start()
+
 {
     system("color B4");
     cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
@@ -25,7 +29,7 @@ void phonemenu()
 {
     string name;
     cout << "                                     **************\t\tPHONE BOOK\t\t********************";
-    cout << "\t\t\t\t\t\n WHAT IS YOUR NAME?\n";
+    cout << "\n   WHAT IS YOUR NAME?\n";
     cin >> name;
     cout << "\n\t\t\t\t\t  !!!!!!!!!!!!!!!!   WELCOME " << name << "     !!!!!!!!!!!!!!!!!";
     system("Color BC");
@@ -47,14 +51,16 @@ void details()
     cout << "\t\t\t\t\t|        [3] Delete Contact                                |\n";
     cout << "\t\t\t\t\t|        [4] Delete All Contact                            |\n";
     cout << "\t\t\t\t\t|        [5] Display All Contacts                          |\n";
+    cout << "\t\t\t\t\t|        [6] Update Contact                                |\n";
     cout << "\t\t\t\t\t|----------------------------------------------------------|\n";
-    cout << "\t\t\t\t\t|                      [6] Exit                            |\n";
+    cout << "\t\t\t\t\t|                      [7] Exit                            |\n";
     cout << "\t\t\t\t\t|----------------------------------------------------------|\n";
     cout << "\t\t\t\t\t|**********************************************************|\n";
 }
 struct node
 {
-    string name, number;
+    char name[28];
+    char number[17];
     node *next;
 };
 node *head = NULL, *temp;
@@ -62,12 +68,29 @@ int totalcontacts = 0;
 void Insert_Node()
 {
     node *newnode = new node;
-    cout << "Please Enter a Name" << endl;
+    cout << "\t\tPlease Enter a Name" << endl;
     cin >> newnode->name;
-    cout << "Please Enter a Number" << endl;
+repeat:
+    cout << "\t\tPlease Enter a Number" << endl;
     cin >> newnode->number;
+
+    for (int i = 0; i < strlen(newnode->number); i++)
+
+    {
+        try
+        {
+            if (strlen(newnode->number) < 10)
+                throw newnode->number[i];
+        }
+        catch (char a)
+        {
+            cout << "Enter a valid number" << endl;
+            cout << "Try again" << endl;
+            goto repeat;
+        }
+    }
     newnode->next = NULL;
-    
+
     if (head == NULL)
     {
         head = newnode;
@@ -78,13 +101,14 @@ void Insert_Node()
         temp->next = newnode;
         temp = newnode;
     }
+    cout << "\t\tPhone details successfully stored " << endl;
 }
 void display()
 {
 
     if (head == NULL)
     {
-        cout << "Contact list is empty" << endl;
+        cout << "\t\tContact list is empty" << endl;
     }
     else
     {
@@ -96,20 +120,18 @@ void display()
             trav = trav->next;
             totalcontacts++;
         }
-        cout << "\n\tTotal Contacts  in the list are " << totalcontacts << endl;
+        cout << "\n\t\tTotal Contacts  in the list are " << totalcontacts << endl;
     }
 }
 void search_contact()
 {
     string searchh;
-    int count = 1;
     node *search_node = head;
-    cout << "Enter Your Desired Contact To Search " << endl;
+    cout << "\t\tEnter Your Desired Contact To Search " << endl;
     cin >> searchh;
-    bool found = true;
     if (head == NULL)
     {
-        cout << "Contact List Is Empty" << endl;
+        cout << "\t\tContact List Is Empty" << endl;
     }
     else
     {
@@ -119,27 +141,69 @@ void search_contact()
             {
                 cout << "\t\tFull Name : " << search_node->name << endl;
                 cout << "\t\tPhone Number : " << search_node->number << endl;
-                found = true;
-                break;
             }
             search_node = search_node->next;
-            count++;
         }
     }
-    if (found == true)
+}
+
+void update_contact()
+{
+    string update;
+    char temp1[28];
+    char temp2[17];
+    node *temp = head;
+    cout << "\t Enter Your Desired Contact To Update " << endl;
+    cin >> update;
+    if (head == NULL)
     {
-        cout << "\t\tIndex of Contact : " << count << endl;
+        cout << "t\tContact List is empty" << endl;
     }
     else
     {
-        cout << "Desired Contact is not Found" << endl;
+        while (temp != NULL)
+        {
+            if (update == temp->name || update == temp->number)
+            {
+                cout << "\t\tEnter New Name : " << temp->name << endl;
+                cin >> temp1;
+            repeat:
+                cout << "\t\t Enter New Number" << temp->number << endl;
+                cin >> temp2;
+
+                for (int i = 0; i < strlen(temp2); i++)
+
+                {
+                    try
+                    {
+                        if (strlen(temp2) < 10)
+                            throw temp2[i];
+                    }
+                    catch (char a)
+                    {
+                        cout << "Enter a valid number" << endl;
+                        cout << "Try again" << endl;
+                        goto repeat;
+                    }
+                }
+                for (int i = 0; i < 20; i++)
+                {
+                    temp->name[i] = temp1[i];
+                    temp->number[i] = temp2[i];
+                }
+                cout << "\t\tUpdated Successfully" << endl;
+                break;
+            }
+            temp = temp->next;
+        }
     }
 }
 void delete_contact_at_given_index()
 {
     string position;
     node *temp = head;
-    cout << "\t Enter Your Desired Contact To Delete" << endl;
+     node *current = head;
+    cout << "\t\tEnter Your Desired Contact To Delete" << endl;
     cin >> position;
     if (head == NULL)
     {
@@ -147,21 +211,17 @@ void delete_contact_at_given_index()
     }
     else
     {
-        node *current = head;
         while (current != NULL)
         {
-            temp = current->next;
-            if (position == current->next->name || position == current->next->number)
+            temp = current;
+            if (position == current->name || position == current->number)
             {
-                current->next = current->next->next;
+                current = current->next;
                 delete temp;
                 cout << "\tContact Delete Successfully" << endl;
                 break;
             }
-            else
-            {
-                current = current->next;
-            }
+            current = current->next;
         }
     }
 }
@@ -169,7 +229,7 @@ void deleteall()
 {
     if (head == NULL)
     {
-        cout << "List Is Empty" << endl;
+        cout << "\tList Is Empty" << endl;
     }
     else
     {
@@ -177,9 +237,9 @@ void deleteall()
         while (head != NULL)
         {
             head = head->next;
-            delete temp;
+            delete head;
         }
-        cout << "All Contacts Delete Successfully" << endl;
+        cout << "\tAll Contacts Delete Successfully" << endl;
     }
 }
 int main()
@@ -200,7 +260,7 @@ int main()
             search_contact();
             break;
         case 3:
-            delete_contact_at_given_index();
+           delete_contact_at_given_index();
             break;
         case 4:
             deleteall();
@@ -210,6 +270,28 @@ int main()
             display();
             break;
         case 6:
+            update_contact();
+            break;
+        case 7:
+            cout << endl;
+            cout << endl;
+            cout << endl;
+            cout << "\t\t\t\t\t|----------------------------------------------------------|\n";
+            cout << "\t\t\t\t\t|**********************************************************|\n";
+            cout << "\t\t\t\t\t|----------------------------------------------------------|\n";
+            cout << "\t\t\t\t\t|                                                          |\n";
+            cout << "\t\t\t\t\t|                                                          |\n";
+            cout << "\t\t\t\t\t|            THANKS FOR USING THIS NOTEBOOK                |\n";
+            cout << "\t\t\t\t\t|                                                          |\n";
+            cout << "\t\t\t\t\t|                                                          |\n";
+            cout << "\t\t\t\t\t|----------------------------------------------------------|\n";
+            cout << "\t\t\t\t\t|**********************************************************|\n";
+            cout << "\t\t\t\t\t|----------------------------------------------------------|\n";
+
+            cout << endl;
+            cout << endl;
+            cout << endl;
+            cout << endl;
             exit(1);
         default:
             cout << "Invalid Option" << endl;
@@ -217,3 +299,4 @@ int main()
         }
     }
 }
+
